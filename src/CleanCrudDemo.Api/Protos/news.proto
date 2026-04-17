@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package news;
+
+option csharp_namespace = "CleanCrudDemo.Api.GrpcServices";
+
+service NewsGrpc {
+  rpc GetNewsById (GetNewsByIdRequest) returns (GetNewsByIdReply);
+}
+
+message GetNewsByIdRequest {
+  string id = 1;
+}
+
+message GetNewsByIdReply {
+  string id = 1;
+  string title = 2;
+  string content = 3;
+}

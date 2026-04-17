@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: cleancrud_sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Your_password123"
+    ports:
+      - "1433:1433"
+
+  mongodb:
+    image: mongo:8
+    container_name: cleancrud_mongodb
+    ports:
+      - "27017:27017"
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: cleancrud_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"

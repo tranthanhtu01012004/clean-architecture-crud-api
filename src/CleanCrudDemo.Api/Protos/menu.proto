@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package menu;
+
+option csharp_namespace = "CleanCrudDemo.Api.GrpcServices";
+
+service MenuGrpc {
+  rpc GetMenuById (GetMenuByIdRequest) returns (GetMenuByIdReply);
+}
+
+message GetMenuByIdRequest {
+  string id = 1;
+}
+
+message GetMenuByIdReply {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated string newsIds = 4;
+}
