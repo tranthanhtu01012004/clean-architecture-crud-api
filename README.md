@@ -1,98 +1,45 @@
-# 🚀 CleanCrudDemo - Microservice Notes
+1. Mô hình tổng quát
+Kiến trúc: Clean Architecture + CQRS + Event-Driven.
 
----
+Giao thức: REST API & gRPC.
 
-## 🧠 1. Tổng quan hệ thống
+Luồng dữ liệu: Client -> API -> SQL Server & RabbitMQ -> Worker -> MongoDB.
 
-```mermaid
-graph TD
-    A[Client / Swagger] --> B[API (.NET)]
-    B --> C[SQL Server]
-    B --> D[RabbitMQ]
-    D --> E[Worker Service]
-    E --> F[MongoDB]
+2. Cấu trúc Layer
+Presentation: Controller, gRPC Service (Tiếp nhận request).
 
-👉 Kiến trúc: Clean Architecture + Event-driven
+Application: MediatR (Command/Query), Handlers (Xử lý nghiệp vụ).
 
-⚙️ 2. Thành phần chính
-🔹 API (.NET Core)
-CRUD Menu, News
-EF Core + LINQ
-MediatR (CQRS)
-Publish event → RabbitMQ
-🔹 RabbitMQ
-Message Broker
-Trung gian giữa service
-Không lưu dữ liệu lâu dài
-🔹 Worker (BackgroundService)
-Consume RabbitMQ
-Parse JSON
-Lưu MongoDB
-🔹 MongoDB
-Lưu audit log
-NoSQL (document)
-🔹 SQL Server
-Lưu dữ liệu chính
-Quan hệ many-to-many (Menu – News)
-🔁 3. Flow hệ thống
-1. POST /api/News
-2. API → SQL Server
-3. API → RabbitMQ (publish event)
-4. Worker nhận message
-5. Worker parse JSON
-6. Worker lưu MongoDB
-🧪 4. Lệnh chạy
-▶️ Run API
+Domain: Entities (News, Menu, User) (Cốt lõi).
 
-dotnet run --project src\CleanCrudDemo.Api
+Infrastructure: EF Core, SQL Server, RabbitMQ Publisher (Hạ tầng).
 
-▶️ Run Worker
+Worker: Background Service (Consume event, ghi log).
 
-dotnet run --project src\CleanCrudDemo.Worker
+3. Lưu trữ & Công nghệ
+SQL Server: Dữ liệu chính (quan hệ).
 
-🧱 5. Test
-Swagger → tạo News/Menu
-RabbitMQ → http://localhost:15672
-MongoDB → database: CleanCrudDemoAuditDb
-🧠 6. Parse JSON
-❌ Raw (sai)
-{
-  "eventRaw": "{...}"
-}
-✅ Structured (đúng)
-{
-  "event": "MenuCreated",
-  "entityId": "...",
-  "entityName": "Menu",
-  "action": "CREATE",
-  "payload": {...}
-}
-🔥 7. Mapping Event
-Event	Action	Entity
-NewsCreated	CREATE	News
-MenuCreated	CREATE	Menu
-NewsDeleted	DELETE	News
-🧠 8. Kiến thức sử dụng
-Clean Architecture
-CQRS (MediatR)
-EF Core + LINQ
-RabbitMQ (Producer/Consumer)
-BackgroundService
-MongoDB
-Event-driven architecture
-💬 9. Câu phỏng vấn
+MongoDB: Lưu worker_audit_logs (phi cấu trúc).
 
-Em sử dụng RabbitMQ để xử lý bất đồng bộ.
-API publish event, Worker consume và lưu log vào MongoDB.
+RabbitMQ: Message Broker trung chuyển sự kiện.
 
-🎯 10. Tóm tắt nhanh
-API → SQL
-API → Rabbit
-Rabbit → Worker
-Worker → Mongo
-🚀 11. Level đạt được
-✔ CRUD
-✔ CQRS
-✔ RabbitMQ
-✔ MongoDB
-✔ Microservice cơ bản
+Backend: .NET 8, MediatR, JWT.
+
+4. Quy trình thực thi (Flow)
+Ghi: API -> MediatR -> SQL -> RabbitMQ.
+
+Đọc: API/gRPC -> MediatR -> SQL.
+
+Audit: RabbitMQ -> Worker -> MongoDB (worker_audit_logs).
+
+5. Vận hành & Kiểm tra
+Lệnh chạy: dotnet run cho từng project API và Worker.
+
+Swagger: localhost:54422/swagger
+
+RabbitMQ UI: localhost:15672
+
+MongoDB: Kiểm tra collection worker_audit_logs trong DB CleanCrudDemoAuditDb.
+
+6. Kết quả
+Hệ thống xử lý CRUD chuẩn, bảo mật JWT, tách biệt luồng đọc/ghi (CQRS) và lưu log bất đồng bộ qua Worker Service.
